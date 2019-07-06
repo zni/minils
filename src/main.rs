@@ -10,5 +10,8 @@ fn main() {
         process::exit(1);
     });
 
-    minils::run(&config);
+    minils::run(&config).unwrap_or_else(|err| {
+        println!("minils: {:?}", err);
+        process::exit(1);
+    });
 }

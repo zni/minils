@@ -17,11 +17,11 @@ impl Config {
     }
 }
 
-pub fn run(config: &Config) {
-    list_files(&config.paths);
+pub fn run(config: &Config) -> std::io::Result<()> {
+    list_files(&config.paths)
 }
 
-fn list_files(files: &Vec<String>) -> Result<(), std::io::Error> {
+fn list_files(files: &Vec<String>) -> std::io::Result<()> {
     for file in files {
          match is_directory(&file) {
             Ok(true) => list_directory(file)?,
@@ -39,12 +39,12 @@ fn handle_error(file: &String, error: std::io::Error) {
     };
 }
 
-fn is_directory(file: &String) -> Result<bool, std::io::Error> {
+fn is_directory(file: &String) -> std::io::Result<bool> {
     let attrs = fs::metadata(file)?;
     Ok(attrs.is_dir())
 }
 
-fn list_directory(file: &String) -> Result<(), std::io::Error> {
+fn list_directory(file: &String) -> std::io::Result<()> {
     println!("{}:", file);
     let dir_entries = fs::read_dir(file)?;
     for entry in dir_entries {
@@ -55,7 +55,7 @@ fn list_directory(file: &String) -> Result<(), std::io::Error> {
     Ok(())
 }
 
-fn list_file(file: &String) -> Result<(), std::io::Error> {
+fn list_file(file: &String) -> std::io::Result<()> {
     println!("{}", file);
     Ok(())
 }
