@@ -49,9 +49,11 @@ fn list_directory(file: &String) -> std::io::Result<()> {
     let dir_entries = fs::read_dir(file)?;
     for entry in dir_entries {
         let entry = entry?;
+        let metadata = entry.metadata()?;
         let name = entry.file_name().into_string().unwrap();
-        println!("  {}", name);
+        println!("{:<name_width$} {:<width$}", name, metadata.len(), name_width=20, width=9);
     }
+    println!("");
     Ok(())
 }
 
