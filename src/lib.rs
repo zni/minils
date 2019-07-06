@@ -49,7 +49,8 @@ fn list_directory(file: &String) -> Result<(), std::io::Error> {
     let dir_entries = fs::read_dir(file)?;
     for entry in dir_entries {
         let entry = entry?;
-        println!("\t{:?}", entry.file_name());
+        let name = entry.file_name().into_string().unwrap();
+        println!("  {}", name);
     }
     Ok(())
 }
