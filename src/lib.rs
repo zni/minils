@@ -3,6 +3,7 @@ use std::fs::Metadata;
 use std::io::ErrorKind;
 use std::os::unix::fs::MetadataExt;
 use std::os::unix::fs::PermissionsExt;
+use users;
 
 
 
@@ -93,10 +94,16 @@ fn list_file(file: &String, long_listing: bool) -> std::io::Result<()> {
 fn print_long_listing(name: &String, metadata: &Metadata) {
     let permissions = metadata.permissions().mode();
     let len = metadata.len();
+
     let uid = metadata.uid();
+    let user = users::get_user_by_uid(uid).unwrap();
+    let user = user.name().to_string_lossy();
+
     let gid = metadata.gid();
+    let group = users::get_group_by_gid(gid).unwrap();
+    let group = group.name().to_string_lossy();
 
     println!("{:<name_width$} {} {} {:o} {:>len_width$}B",
-        name, uid, gid, permissions, len, name_width=20, len_width=9
+        name, user, group, permissions, len, name_width=20, len_width=9
     );
 }
