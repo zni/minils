@@ -104,8 +104,8 @@ fn print_long_listing(name: &String, metadata: &Metadata) {
     let group = users::get_group_by_gid(gid).unwrap();
     let group = group.name().to_string_lossy();
 
-    println!("{:<name_width$} {} {} {} {:>len_width$}B",
-        name, user, group, permissions, len, name_width=20, len_width=9
+    println!("{} {} {}  {:>len_width$}B {:<name_width$}",
+        permissions, user, group, len, name, name_width=20, len_width=9
     );
 }
 
