@@ -1,5 +1,10 @@
 use std::fs;
+use std::fs::Metadata;
 use std::io::ErrorKind;
+use std::os::unix::fs::MetadataExt;
+use std::os::unix::fs::PermissionsExt;
+
+
 
 pub struct Config {
     paths: Vec<String>,
@@ -65,7 +70,7 @@ fn list_directory(file: &String, long_listing: bool) -> std::io::Result<()> {
         let name = entry.file_name().into_string().unwrap();
 
         if long_listing {
-            print_long_listing(&name, metadata.len());
+            print_long_listing(&name, &metadata);
         } else {
             print!("{} ", name);
         }
@@ -77,16 +82,21 @@ fn list_directory(file: &String, long_listing: bool) -> std::io::Result<()> {
 
 fn list_file(file: &String, long_listing: bool) -> std::io::Result<()> {
     if long_listing {
-        let attrs = fs::metadata(file)?;
-        print_long_listing(file, attrs.len());
+        let metadata = fs::metadata(file)?;
+        print_long_listing(file, &metadata);
     } else {
         println!("{}", file);
     }
     Ok(())
 }
 
-fn print_long_listing(name: &String, len: u64) {
-    println!("{:<name_width$} {:>len_width$}B",
-        name, len, name_width=20, len_width=9
+fn print_long_listing(name: &String, metadata: &Metadata) {
+    let permissions = metadata.permissions().mode();
+    let len = metadata.len();
+    let uid = metadata.uid();
+    let gid = metadata.gid();
+
+    println!("{:<name_width$} {} {} {:o} {:>len_width$}B",
+        name, uid, gid, permissions, len, name_width=20, len_width=9
     );
 }
