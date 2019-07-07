@@ -93,6 +93,7 @@ fn list_file(file: &String, long_listing: bool) -> std::io::Result<()> {
 
 fn print_long_listing(name: &String, metadata: &Metadata) {
     let permissions = metadata.permissions().mode();
+    let permissions = format_permissions(permissions);
     let len = metadata.len();
 
     let uid = metadata.uid();
@@ -103,7 +104,65 @@ fn print_long_listing(name: &String, metadata: &Metadata) {
     let group = users::get_group_by_gid(gid).unwrap();
     let group = group.name().to_string_lossy();
 
-    println!("{:<name_width$} {} {} {:o} {:>len_width$}B",
+    println!("{:<name_width$} {} {} {} {:>len_width$}B",
         name, user, group, permissions, len, name_width=20, len_width=9
     );
 }
+
+fn format_permissions(permissions: u32) -> String {
+    // directory
+    let directory = match (permissions >> 14) & 1 {
+        1 => "d",
+        _ => "-",
+    };
+
+    // owner
+    let owner_read = match (permissions >> 8) & 1 {
+        1 => "r",
+        _ => "-",
+    };
+    let owner_write = match (permissions >> 7) & 1 {
+        1 => "w",
+        _ => "-",
+    };
+    let owner_execute = match (permissions >> 6) & 1 {
+        1 => "x",
+        _ => "-",
+    };
+
+    // group
+    let group_read = match (permissions >> 5) & 1 {
+        1 => "r",
+        _ => "-",
+    };
+    let group_write = match (permissions >> 4) & 1 {
+        1 => "w",
+        _ => "-",
+    };
+    let group_execute = match (permissions >> 3) & 1 {
+        1 => "x",
+        _ => "-",
+    };
+
+    // other
+    let other_read = match (permissions >> 2) & 1 {
+        1 => "r",
+        _ => "-",
+    };
+    let other_write = match (permissions >> 1) & 1 {
+        1 => "w",
+        _ => "-",
+    };
+    let other_execute = match permissions & 1 {
+        1 => "x",
+        _ => "-",
+    };
+
+    format!("{}{}{}{}{}{}{}{}{}{}",
+        directory,
+        owner_read, owner_write, owner_execute,
+        group_read, group_write, group_execute,
+        other_read, other_write, other_execute
+    )
+}
+
