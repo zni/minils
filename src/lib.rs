@@ -26,7 +26,7 @@ impl Config {
             }
         }
 
-        if paths.len() == 0 {
+        if paths.is_empty() {
             paths.push(String::from("."));
         }
 
@@ -49,19 +49,18 @@ fn list_files(config: &Config) -> std::io::Result<()> {
     Ok(())
 }
 
-fn handle_error(file: &String, error: std::io::Error) {
-    match error.kind() {
-        ErrorKind::NotFound => println!("{}: file not found", file),
-        _ => (),
+fn handle_error(file: &str, error: std::io::Error) {
+    if let ErrorKind::NotFound = error.kind() {
+        println!("{}: file not found", file);
     };
 }
 
-fn is_directory(file: &String) -> std::io::Result<bool> {
+fn is_directory(file: &str) -> std::io::Result<bool> {
     let attrs = fs::metadata(file)?;
     Ok(attrs.is_dir())
 }
 
-fn list_directory(file: &String, long_listing: bool) -> std::io::Result<()> {
+fn list_directory(file: &str, long_listing: bool) -> std::io::Result<()> {
     println!("{}:", file);
 
     let dir_entries = fs::read_dir(file)?;
@@ -77,11 +76,11 @@ fn list_directory(file: &String, long_listing: bool) -> std::io::Result<()> {
         }
     }
 
-    println!("");
+    println!();
     Ok(())
 }
 
-fn list_file(file: &String, long_listing: bool) -> std::io::Result<()> {
+fn list_file(file: &str, long_listing: bool) -> std::io::Result<()> {
     if long_listing {
         let metadata = fs::metadata(file)?;
         print_long_listing(file, &metadata);
@@ -91,7 +90,7 @@ fn list_file(file: &String, long_listing: bool) -> std::io::Result<()> {
     Ok(())
 }
 
-fn print_long_listing(name: &String, metadata: &Metadata) {
+fn print_long_listing(name: &str, metadata: &Metadata) {
     let permissions = metadata.permissions().mode();
     let permissions = format_permissions(permissions);
     let len = metadata.len();
